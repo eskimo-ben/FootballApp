@@ -26,7 +26,7 @@ namespace FootballApp
             InitializeComponent();
         }
 
-        private void b_Fixtures_Click(object sender, RoutedEventArgs e)
+        private void b_Games_Click(object sender, RoutedEventArgs e)
         {
             new Selector(new Game()).Show();
         }

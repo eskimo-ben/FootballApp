@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FootballApp"
         mc:Ignorable="d"
-        Title="Selector" Height="450" MinHeight="450" Width="270" MinWidth="270">
+        Title="Selector" Height="450" MinHeight="200" Width="270" MinWidth="270">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -22,17 +22,22 @@
             <StackPanel x:Name="ScrollerStack"></StackPanel>
         </ScrollViewer>
         -->
-
+        <ComboBox x:Name = "ComboList" Grid.Column="0" VerticalAlignment="Center" Grid.Row="0" Margin="5,0,5,0" SelectionChanged="ComboList_SelectionChanged"></ComboBox>
+        
         <ListBox x:Name="MainList" Grid.Row="1"></ListBox>
         
-        <Button Grid.Row="2" x:Name = "b_AddFixture" Content = "Add"
+        <Button Grid.Row="2" x:Name = "b_Add" Content = "Add"
          HorizontalAlignment = "Right"
          VerticalAlignment = "Center" Width = "75" Margin="0,0,5,0"/>
 
-        <Button Grid.Row="2" x:Name = "b_RemoveFixture" Content = "Remove"
+        <Button Grid.Row="2" x:Name = "b_Edit" Content = "Edit"
+         HorizontalAlignment = "Center"
+         VerticalAlignment = "Center" Width = "75" />
+
+        <Button Grid.Row="2" x:Name = "b_Remove" Content = "Remove"
          HorizontalAlignment = "Left"
          VerticalAlignment = "Center" Width = "75" Margin="5,0,0,0"/>
 
-        <ComboBox x:Name = "ComboList" Grid.Column="0" VerticalAlignment="Center" Grid.Row="0" Margin="5,0,5,0"></ComboBox>
+        
     </Grid>
 </Window>
