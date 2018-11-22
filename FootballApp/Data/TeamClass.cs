@@ -10,7 +10,8 @@ namespace FootballApp
     public class Team
     {
         public string teamCode { get; set; }
-        public string name;
+        public string name { get; set; }
+        //public string name;
         public string venue;
 
         public Team(string pTeamCode)

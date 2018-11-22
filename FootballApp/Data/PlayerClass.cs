@@ -181,5 +181,25 @@ namespace FootballApp
             Random r = new Random();
             return fname.Substring(0, 3) + r.Next(10) + r.Next(10) + r.Next(10) + r.Next(10);
         }
+
+        public static List<Player> AllPlayers()
+        {
+            List<Player> tempPlayers = new List<Player>();
+            foreach (Player player in Data.players)
+            {
+                tempPlayers.Add(player);
+            }
+            return tempPlayers;
+        }
+
+        public static List<Player> FreeAgents()
+        {
+            return Data.players.Where(player => player.teamCode == null).ToList();
+        }
+
+        public static List<Player> TeamPlayers(string pTeamCode)
+        {
+            return Data.players.Where(player => player.teamCode == pTeamCode).ToList();
+        }
     }
 }

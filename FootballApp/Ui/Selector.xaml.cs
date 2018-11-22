@@ -19,6 +19,9 @@ namespace FootballApp
     /// </summary>
     public partial class Selector : Window
     {
+        private bool isGame;
+        private bool isPlayer;
+        private bool isTeam;
         private Selector()
         {
             InitializeComponent();
@@ -38,6 +41,7 @@ namespace FootballApp
 
         public Selector(Player pPlayer) : this()
         {
+            isPlayer = true;
             Title = "Player Selector";
 
             ComboList.DisplayMemberPath = "name";//These are coming up blank for some reason
@@ -60,51 +64,18 @@ namespace FootballApp
                 ComboList.Items.Add(team);
             }
 
-            AllPlayers();
+            
+
+            MainList.ItemsSource = Player.AllPlayers();
 
             MainList.DisplayMemberPath = "fullName";
             MainList.SelectedValuePath = "playerCode";
 
-            void AllPlayers()
-            {
-                foreach (Player player in Data.players)
-                {
-                    MainList.Items.Add(player);
-                }
-            }
-
-            void FreeAgents()
-            {
-
-            }
-
-            void TeamPlayers(string pTeamCode)
-            {
-
-            }
-
-            void ComboList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-            {
-                switch (ComboList.SelectedValue)
-                {
-                    case "ALL":
-                        AllPlayers();
-                            break;
-                    case "FREE":
-                        FreeAgents();
-                        break;
-                    default:
-                        //TeamPlayers();
-                        break;
-                }
-            }
-
-            //ComboList.SelectionChanged
-
+            
 
         }
 
-    public Selector(Team pTeam) : this()
+        public Selector(Team pTeam) : this()
         {
             Title = "Team Selector";
             foreach (Team team in Data.teams)
@@ -113,20 +84,26 @@ namespace FootballApp
             }
         }
 
+        public event Action MyEvent;
+
         void ComboList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            switch (ComboList.SelectedValue)
+            if (isPlayer)
             {
-                case "ALL":
-                    //AllPlayers();
-                    break;
-                case "FREE":
-                    //FreeAgents();
-                    break;
-                default:
-                    //TeamPlayers();
-                    break;
+                switch (ComboList.SelectedValue)
+                {
+                    case "ALL":
+                        MainList.ItemsSource = Player.AllPlayers();
+                        break;
+                    case "FREE":
+                        MainList.ItemsSource = Player.FreeAgents();
+                        break;
+                    default:
+                        MainList.ItemsSource = Player.TeamPlayers(ComboList.SelectedValue.ToString());
+                        break;
+                }
             }
+            
         }
     }
 }
