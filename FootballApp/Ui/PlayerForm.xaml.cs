@@ -60,7 +60,7 @@ namespace FootballApp
 
             bool Validate()
             {
-                return vFname() && vSname() ? true : false;
+                return vFname() && vSname();
 
                 bool vFname()
                 {
@@ -72,13 +72,13 @@ namespace FootballApp
                         }
                         else
                         {
-                            MessageBox.Show("Forename is too long! Forename must be no more than 50 characters long.", "Invalid Data");
+                            MessageBox.Show("Player forename too long! The player's forename must be no more than 50 characters long.", "Invalid Data");
                             return false;
                         }
                     }
                     else
                     {
-                        MessageBox.Show("Forename is too short! Forename must be at least 3 characters long.", "Invalid Data");
+                        MessageBox.Show("Player forename too short! The player's forename must be at least 3 characters long.", "Invalid Data");
                         return false;
                     }
                 }
@@ -91,7 +91,7 @@ namespace FootballApp
                     }
                     else
                     {
-                        MessageBox.Show("Surname is too long! Surname must be no more than 50 characters long.", "Invalid Data");
+                        MessageBox.Show("Surname too long! The player's surname must be no more than 50 characters long.", "Invalid Data");
                         return false;
                     }
                 }

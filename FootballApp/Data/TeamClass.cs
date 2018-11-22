@@ -24,41 +24,53 @@ namespace FootballApp
 
         }
 
+        public bool ExistsOnDb()
+        {
+            return ExistsOnDb(teamCode);
+        }
+
+        public static bool ExistsOnDb(string pTeamCode)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                {
+                    conn.Open();
+
+                    SqlCommand findTeam = new SqlCommand("SELECT COUNT (*) FROM t_Teams WHERE teamcode = @teamcode", conn);
+
+                    findTeam.Parameters.Add(new SqlParameter("teamcode", pTeamCode));
+
+                    int noOfRecords = 0;
+
+                    using (SqlDataReader reader = findTeam.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            noOfRecords = Convert.ToInt16(reader[0]);
+                        }
+                    }
+
+                    return noOfRecords > 0 ? true : false;
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         public bool Save()
         {
             if (ExistsOnDb())
-            {
                 return Update() ? true : false;
-            }
             else
             {
+                teamCode = GenerateTeamCode();
                 return Insert() ? true : false;
             }
 
-            bool ExistsOnDb()
-            {
-                try
-                {
-                    using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
-                    {
-                        conn.Open();
-
-                        SqlCommand findTeam = new SqlCommand("SELECT * FROM t_Teams WHERE teamcode = @teamcode", conn);
-
-                        findTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
-
-                        return findTeam.ExecuteNonQuery() > 0 ? true : false;
-                    }
-                }
-                catch (SqlException e)
-                {
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
-            }
+            
 
             bool Insert()
             {
@@ -163,10 +175,20 @@ namespace FootballApp
             }
         }
 
-        public string GenerateTeamCode()
+        private string GenerateTeamCode()
         {
             Random r = new Random();
             return r.Next(10) + r.Next(10) + r.Next(10) + name.Substring(0, 3);
+        }
+
+        public static Team getByCode(string pTeamCode)
+        {
+            return Data.teams.Single(team => team.teamCode == pTeamCode);
+        }
+
+        public static bool checkByCode(string pTeamCode)
+        {
+            return Data.teams.Count(team => team.teamCode == pTeamCode) > 0 ? true : false;
         }
     }
 }

@@ -22,6 +22,8 @@ namespace FootballApp
         private bool isGame;
         private bool isPlayer;
         private bool isTeam;
+        private string defaultTeam;
+
         private Selector()
         {
             InitializeComponent();
@@ -53,7 +55,8 @@ namespace FootballApp
             ComboListItems.Insert(0, new Team() { name = "All Players", teamCode = "ALL" });
             ComboListItems.Insert(1, new Team() { name = "Free Agents", teamCode = "FREE" });
             ComboList.ItemsSource = ComboListItems;
-            ComboList.SelectedIndex = 0;
+            if (defaultTeam == null) ComboList.SelectedIndex = 0; else ComboList.SelectedValue = defaultTeam;
+
 
             MainList.ItemsSource = Data.players;
             MainList.DisplayMemberPath = "fullName";
@@ -64,9 +67,17 @@ namespace FootballApp
         {
             isTeam = true;
             Title = "Team Selector";
-            foreach (Team team in Data.teams)
+
+            MainList.ItemsSource = Data.teams;
+            MainList.DisplayMemberPath = "name";
+            MainList.SelectedValuePath = "teamCode";
+        }
+
+        public Selector(string pTeamCode) : this(new Player())
+        {
+            if (Team.ExistsOnDb(pTeamCode))
             {
-                MainList.Items.Add(team.name);
+                defaultTeam = pTeamCode;
             }
         }
         
@@ -110,8 +121,22 @@ namespace FootballApp
 
         private void b_Edit_Click(object sender, RoutedEventArgs e)
         {
-            if(Player.checkByCode(MainList.SelectedValue.ToString()))
-                new PlayerForm(Player.getByCode(MainList.SelectedValue.ToString())).Show();
+            if (isPlayer)
+            {
+                if (Player.checkByCode(MainList.SelectedValue.ToString()))
+                    new PlayerForm(Player.getByCode(MainList.SelectedValue.ToString())).Show();
+            }
+            if (isTeam)
+            {
+                if (Team.checkByCode(MainList.SelectedValue.ToString()))
+                    new TeamForm(Team.getByCode(MainList.SelectedValue.ToString())).Show();
+            }
+
+            if (isGame)
+            {
+
+            }
+            
         }
     }
 }
