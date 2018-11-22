@@ -66,7 +66,7 @@ namespace FootballApp
                 return Update() ? true : false;
             else
             {
-                teamCode = GenerateTeamCode();
+                
                 return Insert() ? true : false;
             }
 
@@ -74,29 +74,36 @@ namespace FootballApp
 
             bool Insert()
             {
+
+                bool success;
+                if(teamCode == null) teamCode = GenerateTeamCode();
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
                     {
                         conn.Open();
 
-                        SqlCommand insertTeam = new SqlCommand("INSERT INTO t_Users VALUES (@teamcode, @name, @venue)", conn);
+                        SqlCommand insertTeam = new SqlCommand("INSERT INTO t_Teams VALUES (@teamcode, @name, @venue)", conn);
 
                         insertTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
                         insertTeam.Parameters.Add(new SqlParameter("name", name));
                         insertTeam.Parameters.Add(new SqlParameter("venue", venue));
 
-                        return insertTeam.ExecuteNonQuery() > 0 ? true : false;
+                        success = insertTeam.ExecuteNonQuery() > 0 ? true : false;
                     }
-                }
-                catch (SqlException e)
-                {
-                    return false;
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("There was an exception whilst team ({0}) was being inserted into the database!", teamCode);
+                    Console.WriteLine(e);
                     return false;
                 }
+                if (success)
+                {
+                    Data.teams.Add(this);
+                    return true;
+                }
+                else return false;
             }
 
             bool Update()
@@ -107,7 +114,7 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand updateTeam = new SqlCommand("UPDATE t_Users SET name = @name, venue = @venue WHERE teamcode = @teamcode", conn);
+                        SqlCommand updateTeam = new SqlCommand("UPDATE t_Teams SET name = @name, venue = @venue WHERE teamcode = @teamcode", conn);
 
                         updateTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
                         updateTeam.Parameters.Add(new SqlParameter("name", name));

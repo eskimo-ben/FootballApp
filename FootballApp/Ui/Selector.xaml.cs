@@ -22,7 +22,6 @@ namespace FootballApp
         private bool isGame;
         private bool isPlayer;
         private bool isTeam;
-        private string defaultTeam;
 
         private Selector()
         {
@@ -55,7 +54,7 @@ namespace FootballApp
             ComboListItems.Insert(0, new Team() { name = "All Players", teamCode = "ALL" });
             ComboListItems.Insert(1, new Team() { name = "Free Agents", teamCode = "FREE" });
             ComboList.ItemsSource = ComboListItems;
-            if (defaultTeam == null) ComboList.SelectedIndex = 0; else ComboList.SelectedValue = defaultTeam;
+            ComboList.SelectedIndex = 0; 
 
 
             MainList.ItemsSource = Data.players;
@@ -67,6 +66,7 @@ namespace FootballApp
         {
             isTeam = true;
             Title = "Team Selector";
+            
 
             MainList.ItemsSource = Data.teams;
             MainList.DisplayMemberPath = "name";
@@ -75,10 +75,8 @@ namespace FootballApp
 
         public Selector(string pTeamCode) : this(new Player())
         {
-            if (Team.ExistsOnDb(pTeamCode))
-            {
-                defaultTeam = pTeamCode;
-            }
+            ComboList.SelectedValue = pTeamCode;
+            MainList.ItemsSource = Player.getByTeamCode(pTeamCode);
         }
         
         void ComboList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -91,10 +89,10 @@ namespace FootballApp
                         MainList.ItemsSource = Data.players;
                         break;
                     case "FREE":
-                        MainList.ItemsSource = Player.FreeAgents();
+                        MainList.ItemsSource = Player.getFreeAgents();
                         break;
                     default:
-                        MainList.ItemsSource = Player.TeamPlayers(ComboList.SelectedValue.ToString());
+                        MainList.ItemsSource = Player.getByTeamCode(ComboList.SelectedValue.ToString());
                         break;
                 }
             }
@@ -117,14 +115,19 @@ namespace FootballApp
             {
                 new PlayerForm().Show();
             }
+
+            if (isTeam)
+            {
+                new TeamForm().Show();
+            }
         }
 
         private void b_Edit_Click(object sender, RoutedEventArgs e)
         {
             if (isPlayer)
             {
-                if (Player.checkByCode(MainList.SelectedValue.ToString()))
-                    new PlayerForm(Player.getByCode(MainList.SelectedValue.ToString())).Show();
+                if (Player.checkByPlayerCode(MainList.SelectedValue.ToString()))
+                    new PlayerForm(Player.getByPlayerCode(MainList.SelectedValue.ToString())).Show();
             }
             if (isTeam)
             {

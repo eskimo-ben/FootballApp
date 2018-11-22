@@ -29,12 +29,14 @@ namespace FootballApp
         public TeamForm(Team pTeam):this()
         {
             myTeam = pTeam;
+            nameField.Text = pTeam.name;
+            venueField.Text = pTeam.venue;
 
         }
 
         private void b_EditPlayers_Click(object sender, RoutedEventArgs e)
         {
-            new Selector(myTeam.teamCode);
+            new Selector(myTeam.teamCode).Show();
         }
 
         private void b_Save_Click(object sender, RoutedEventArgs e)

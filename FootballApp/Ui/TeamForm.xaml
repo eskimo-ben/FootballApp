@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FootballApp"
         mc:Ignorable="d"
-        Title="Team Form" Height="207.059" MinHeight="170" Width="203.782" MinWidth="200">
+        Title="Team Form" Height="207.059" MinHeight="170" Width="283.95" MinWidth="200">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="47"></ColumnDefinition>
@@ -16,7 +16,7 @@
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition Height="32"/>
             <RowDefinition Height="32"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="55"/>
             <RowDefinition Height="28" />
         </Grid.RowDefinitions>
 
@@ -36,7 +36,7 @@
         <Label Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center">Players</Label>
         <Button Grid.Row="3" Grid.Column ="1" x:Name = "b_EditPlayers" Content = "Edit Player List"
          HorizontalAlignment = "Center"
-         VerticalAlignment = "Center" Width = "140" Height="32" Click="b_EditPlayers_Click" />
+         VerticalAlignment = "Center" Width = "209" Height="30" Click="b_EditPlayers_Click" />
 
         <Button Grid.Row="4" Grid.Column ="2" x:Name = "b_Save" Content = "Save"
          HorizontalAlignment = "Right"

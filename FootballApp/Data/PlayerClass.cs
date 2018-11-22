@@ -102,7 +102,7 @@ namespace FootballApp
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("There was an exception when player ({0}) was being inserted into the database!", playerCode);
+                    Console.WriteLine("There was an exception whilst player ({0}) was being inserted into the database!", playerCode);
                     Console.WriteLine(e);
                     return false;
                 }
@@ -135,7 +135,7 @@ namespace FootballApp
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("There was an exception when player was being updated on the database!");
+                    Console.WriteLine("There was an exception whilst player was being updated on the database!");
                     Console.WriteLine(e);
                     return false;
                 }
@@ -204,22 +204,22 @@ namespace FootballApp
 
 
         #region Collections of players
-        public static Player getByCode(string pPlayerCode)
+        public static Player getByPlayerCode(string pPlayerCode)
         {
             return Data.players.Single(player => player.playerCode == pPlayerCode);
         }
 
-        public static bool checkByCode(string pPlayerCode)
+        public static bool checkByPlayerCode(string pPlayerCode)
         {
             return Data.players.Count(player => player.playerCode == pPlayerCode) > 0 ? true : false;
         }
 
-        public static List<Player> FreeAgents()
+        public static List<Player> getFreeAgents()
         {
             return Data.players.Where(player => player.teamCode == null).ToList();
         }
 
-        public static List<Player> TeamPlayers(string pTeamCode)
+        public static List<Player> getByTeamCode(string pTeamCode)
         {
             return Data.players.Where(player => player.teamCode == pTeamCode).ToList();
         }
