@@ -79,9 +79,16 @@
     <Compile Include="Data\Data.cs" />
     <Compile Include="Data\GameClass.cs" />
     <Compile Include="Data\TeamClass.cs" />
+    <Compile Include="Ui\PlayerForm.xaml.cs">
+      <DependentUpon>PlayerForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\Selector.xaml.cs">
       <DependentUpon>Selector.xaml</DependentUpon>
     </Compile>
+    <Page Include="Ui\PlayerForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\Selector.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

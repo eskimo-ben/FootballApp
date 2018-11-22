@@ -29,14 +29,17 @@ namespace FootballApp
 
         public Selector(Game pGame):this()
         {
+            isGame = true;
             Title = "Game Selector";
-            foreach (Game game in Data.games)
-            {
-                MainList.Items.Add(String.Format("{0} vs {1}",
-                    Data.teams.Single(team => team.teamCode == game.homeTeamCode).name,
-                    Data.teams.Single(team => team.teamCode == game.awayTeamCode).name
-                ));
-            }
+
+            ComboList.DisplayMemberPath = "name";
+            ComboList.SelectedValuePath = "teamCode";
+
+            MainList.DisplayMemberPath = "gameName";
+            MainList.SelectedValuePath = "gameCode";
+            MainList.ItemsSource = Data.games;
+
+            
         }
 
         public Selector(Player pPlayer) : this()
@@ -44,48 +47,29 @@ namespace FootballApp
             isPlayer = true;
             Title = "Player Selector";
 
-            ComboList.DisplayMemberPath = "name";//These are coming up blank for some reason
+            ComboList.DisplayMemberPath = "name";
             ComboList.SelectedValuePath = "teamCode";
+            List<Team> ComboListItems = new List<Team>(Data.teams);
+            ComboListItems.Insert(0, new Team() { name = "All Players", teamCode = "ALL" });
+            ComboListItems.Insert(1, new Team() { name = "Free Agents", teamCode = "FREE" });
+            ComboList.ItemsSource = ComboListItems;
+            ComboList.SelectedIndex = 0;
 
-
-            /*
-            ComboList.Items.Add("All Players");
-            ComboList.Items.Add("Free Agents");
-            */
-
-            Team tempAllPlayers = new Team() { name = "All Players", teamCode = "ALL" };
-            Team tempFreeAgents = new Team() { name = "Free Agents", teamCode = "FREE" };
-
-            ComboList.Items.Add(tempAllPlayers);
-            ComboList.Items.Add(tempFreeAgents);
-
-            foreach (Team team in Data.teams)
-            {
-                ComboList.Items.Add(team);
-            }
-
-            
-
-            MainList.ItemsSource = Player.AllPlayers();
-
+            MainList.ItemsSource = Data.players;
             MainList.DisplayMemberPath = "fullName";
             MainList.SelectedValuePath = "playerCode";
-
-            
-
         }
 
         public Selector(Team pTeam) : this()
         {
+            isTeam = true;
             Title = "Team Selector";
             foreach (Team team in Data.teams)
             {
                 MainList.Items.Add(team.name);
             }
         }
-
-        public event Action MyEvent;
-
+        
         void ComboList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (isPlayer)
@@ -93,7 +77,7 @@ namespace FootballApp
                 switch (ComboList.SelectedValue)
                 {
                     case "ALL":
-                        MainList.ItemsSource = Player.AllPlayers();
+                        MainList.ItemsSource = Data.players;
                         break;
                     case "FREE":
                         MainList.ItemsSource = Player.FreeAgents();
@@ -103,7 +87,31 @@ namespace FootballApp
                         break;
                 }
             }
+
+            if (isTeam)
+            {
+
+            }
+
+            if (isGame)
+            {
+
+            }
             
+        }
+
+        private void b_Add_Click(object sender, RoutedEventArgs e)
+        {
+            if (isPlayer)
+            {
+                new PlayerForm().Show();
+            }
+        }
+
+        private void b_Edit_Click(object sender, RoutedEventArgs e)
+        {
+            if(Player.checkByCode(MainList.SelectedValue.ToString()))
+                new PlayerForm(Player.getByCode(MainList.SelectedValue.ToString())).Show();
         }
     }
 }

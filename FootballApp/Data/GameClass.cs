@@ -11,6 +11,9 @@ namespace FootballApp
     public class Game
     {
         public string gameCode { get; set; }
+        public string gameName { get { return String.Format("{0} (home) vs {1} (away)", homeTeamName, awayTeamName); } }
+        public string homeTeamName { get { return Data.teams.Single(team => team.teamCode == homeTeamCode).name; } }
+        public string awayTeamName { get { return Data.teams.Single(team => team.teamCode == awayTeamCode).name; } }
         public string homeTeamCode { get; set; }
         public string awayTeamCode { get; set; }
         public string[] homePlayerCodes { get; set; }

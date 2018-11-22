@@ -28,11 +28,11 @@
         
         <Button Grid.Row="2" x:Name = "b_Add" Content = "Add"
          HorizontalAlignment = "Right"
-         VerticalAlignment = "Center" Width = "75" Margin="0,0,5,0"/>
+         VerticalAlignment = "Center" Width = "75" Margin="0,0,5,0" Click="b_Add_Click"/>
 
         <Button Grid.Row="2" x:Name = "b_Edit" Content = "Edit"
          HorizontalAlignment = "Center"
-         VerticalAlignment = "Center" Width = "75" />
+         VerticalAlignment = "Center" Width = "75" Click="b_Edit_Click" />
 
         <Button Grid.Row="2" x:Name = "b_Remove" Content = "Remove"
          HorizontalAlignment = "Left"

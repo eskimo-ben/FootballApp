@@ -9,7 +9,7 @@ namespace FootballApp
 {
     public class Player
     {
-        public string playerCode { get; }
+        public string playerCode { get; private set; }
         public string teamCode { get; set; }
         public string fname;
         public string sname;
@@ -29,13 +29,16 @@ namespace FootballApp
 
         public bool Save()
         {
+            if (playerCode == null) playerCode = GeneratePlayerCode();
+
             if (ExistsOnDb())
             {
-                return Update() ? true : false;
+                return Update();
             }
             else
             {
-                return Insert() ? true : false;
+                Data.players.Add(this);
+                return Insert();
             }
 
             bool ExistsOnDb()
@@ -46,16 +49,24 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand findPlayer = new SqlCommand("SELECT * FROM t_Players WHERE playercode = @playercode", conn);
+                        SqlCommand findPlayer = new SqlCommand("SELECT COUNT (*) FROM t_Players WHERE playercode = @playercode", conn);
 
                         findPlayer.Parameters.Add(new SqlParameter("playercode", playerCode));
 
-                        return findPlayer.ExecuteNonQuery() > 0 ? true : false;
+                        //int noOfRecords = findPlayer.ExecuteNonQuery();
+
+                        int noOfRecords = 0;
+
+                        using (SqlDataReader reader = findPlayer.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                noOfRecords = Convert.ToInt16(reader[0]);
+                            }
+                        }
+
+                        return noOfRecords > 0 ? true : false;
                     }
-                }
-                catch (SqlException e)
-                {
-                    return false;
                 }
                 catch (Exception e)
                 {
@@ -71,23 +82,28 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand insertPlayer = new SqlCommand("INSERT INTO t_Players VALUES (@playercode, @teamcode, @fname, @sname, @status)", conn);
+                        SqlCommand insertPlayer = new SqlCommand("INSERT INTO t_Players (playercode, fname, sname, status) VALUES (@playercode, @fname, @sname, @status)", conn);
 
                         insertPlayer.Parameters.Add(new SqlParameter("playercode", playerCode));
-                        insertPlayer.Parameters.Add(new SqlParameter("teamcode", teamCode));
                         insertPlayer.Parameters.Add(new SqlParameter("fname", fname));
                         insertPlayer.Parameters.Add(new SqlParameter("sname", sname));
                         insertPlayer.Parameters.Add(new SqlParameter("status", status));
 
+                        if(teamCode != null)
+                        {
+                            SqlCommand insertPlayerTeamCode = new SqlCommand("INSERT INTO t_Players (teamcode) VALUES (@teamcode) WHERE playercode = @playercode", conn);
+                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("playercode", playerCode));
+                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                        }
+                        
+
                         return insertPlayer.ExecuteNonQuery() > 0 ? true : false;
                     }
                 }
-                catch (SqlException e)
-                {
-                    return false;
-                }
                 catch (Exception e)
                 {
+                    Console.WriteLine("There was an exception when player ({0}) was being inserted into the database!", playerCode);
+                    Console.WriteLine(e);
                     return false;
                 }
             }
@@ -100,23 +116,27 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand updatePlayer = new SqlCommand("UPDATE t_Players SET teamcode = @teamcode, fname = @fname, sname = @sname, status = @status) WHERE playercode = @playercode", conn);
+                        SqlCommand updatePlayer = new SqlCommand("UPDATE t_Players SET fname = @fname, sname = @sname, status = @status WHERE playercode = @playercode", conn);
 
                         updatePlayer.Parameters.Add(new SqlParameter("playercode", playerCode));
-                        updatePlayer.Parameters.Add(new SqlParameter("teamcode", teamCode));
                         updatePlayer.Parameters.Add(new SqlParameter("fname", fname));
                         updatePlayer.Parameters.Add(new SqlParameter("sname", sname));
                         updatePlayer.Parameters.Add(new SqlParameter("status", status));
 
+                        if (teamCode != null)
+                        {
+                            SqlCommand insertPlayerTeamCode = new SqlCommand("UPDATE t_Players (teamcode) VALUES (@teamcode) WHERE playercode = @playercode", conn);
+                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("playercode", playerCode));
+                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                        }
+
                         return updatePlayer.ExecuteNonQuery() > 0 ? true : false;
                     }
                 }
-                catch (SqlException e)
-                {
-                    return false;
-                }
                 catch (Exception e)
                 {
+                    Console.WriteLine("There was an exception when player was being updated on the database!");
+                    Console.WriteLine(e);
                     return false;
                 }
             }
@@ -176,20 +196,22 @@ namespace FootballApp
             }
         }
 
-        public string GeneratePlayerCode()
+        private string GeneratePlayerCode()
         {
             Random r = new Random();
             return fname.Substring(0, 3) + r.Next(10) + r.Next(10) + r.Next(10) + r.Next(10);
         }
 
-        public static List<Player> AllPlayers()
+
+        #region Collections of players
+        public static Player getByCode(string pPlayerCode)
         {
-            List<Player> tempPlayers = new List<Player>();
-            foreach (Player player in Data.players)
-            {
-                tempPlayers.Add(player);
-            }
-            return tempPlayers;
+            return Data.players.Single(player => player.playerCode == pPlayerCode);
+        }
+
+        public static bool checkByCode(string pPlayerCode)
+        {
+            return Data.players.Count(player => player.playerCode == pPlayerCode) > 0 ? true : false;
         }
 
         public static List<Player> FreeAgents()
@@ -201,5 +223,6 @@ namespace FootballApp
         {
             return Data.players.Where(player => player.teamCode == pTeamCode).ToList();
         }
+        #endregion
     }
 }
