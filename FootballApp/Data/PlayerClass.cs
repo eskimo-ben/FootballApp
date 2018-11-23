@@ -29,16 +29,19 @@ namespace FootballApp
 
         public bool Save()
         {
+            Console.WriteLine("----------Saving player...");
             if (playerCode == null) playerCode = GeneratePlayerCode();
 
             if (ExistsOnDb())
             {
+                Console.WriteLine("----------Player already exists on the database. Using UPDATE statement...");
                 return Update();
             }
             else
             {
+                Console.WriteLine("----------Player does not exist on the database. Using INSERT statement...");
                 Data.players.Add(this);
-                return Insert();
+                return Insert() && UpdateOptionals();
             }
 
             bool ExistsOnDb()
@@ -89,20 +92,12 @@ namespace FootballApp
                         insertPlayer.Parameters.Add(new SqlParameter("sname", sname));
                         insertPlayer.Parameters.Add(new SqlParameter("status", status));
 
-                        if(teamCode != null)
-                        {
-                            SqlCommand insertPlayerTeamCode = new SqlCommand("INSERT INTO t_Players (teamcode) VALUES (@teamcode) WHERE playercode = @playercode", conn);
-                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("playercode", playerCode));
-                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("teamcode", teamCode));
-                        }
-                        
-
                         return insertPlayer.ExecuteNonQuery() > 0 ? true : false;
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("There was an exception whilst player ({0}) was being inserted into the database!", playerCode);
+                    Console.WriteLine("An exception was thrown whilst player ({0}) was being inserted into the database!", playerCode);
                     Console.WriteLine(e);
                     return false;
                 }
@@ -110,6 +105,7 @@ namespace FootballApp
 
             bool Update()
             {
+                UpdateOptionals();
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
@@ -123,24 +119,52 @@ namespace FootballApp
                         updatePlayer.Parameters.Add(new SqlParameter("sname", sname));
                         updatePlayer.Parameters.Add(new SqlParameter("status", status));
 
-                        if (teamCode != null)
-                        {
-                            SqlCommand insertPlayerTeamCode = new SqlCommand("UPDATE t_Players (teamcode) VALUES (@teamcode) WHERE playercode = @playercode", conn);
-                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("playercode", playerCode));
-                            insertPlayerTeamCode.Parameters.Add(new SqlParameter("teamcode", teamCode));
-                        }
+                        
 
                         return updatePlayer.ExecuteNonQuery() > 0 ? true : false;
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("There was an exception whilst player was being updated on the database!");
+                    Console.WriteLine("An exception was thrown whilst player was being updated on the database!");
                     Console.WriteLine(e);
                     return false;
                 }
             }
 
+            bool UpdateOptionals()
+            {
+                Console.WriteLine("----------Updating optionals...");
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                    {
+                        conn.Open();
+                        if (teamCode != null)
+                        {
+                            Console.WriteLine("----------teamCode was NOT blank");
+                            SqlCommand updatePlayerTeamCode = new SqlCommand("UPDATE t_Players SET teamcode = @teamcode WHERE playercode = @playercode", conn);
+                            updatePlayerTeamCode.Parameters.Add(new SqlParameter("playercode", playerCode));
+                            updatePlayerTeamCode.Parameters.Add(new SqlParameter("teamcode", teamCode));
+
+                            updatePlayerTeamCode.ExecuteNonQuery();
+                        }
+                        else
+                        {
+                            Console.WriteLine("----------teamCode was blank!!!");
+                        }
+                    }
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("An exception was thrown whilst player's optionals were being updated on the database!");
+                    Console.WriteLine(e);
+                    return false;
+                }
+
+
+            }
 
         }
 
@@ -196,10 +220,32 @@ namespace FootballApp
             }
         }
 
+        public bool Delete()
+        {
+            try
+            {
+                using(SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                {
+                    conn.Open();
+                    SqlCommand deletePlayer = new SqlCommand("DELETE FROM t_Players WHERE playerCode = @playercode", conn);
+                    deletePlayer.Parameters.Add(new SqlParameter("playercode", playerCode));
+                    deletePlayer.ExecuteNonQuery();
+                    Data.players.Remove(this);
+                    return true;
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("An exception was thrown whilst player ({0}) was being deleted from the database!", playerCode);
+                Console.WriteLine(e);
+                return false;
+            }
+        }
+
         private string GeneratePlayerCode()
         {
             Random r = new Random();
-            return fname.Substring(0, 3) + r.Next(10) + r.Next(10) + r.Next(10) + r.Next(10);
+            return String.Format("{0}{1}{2}{3}", fname.Substring(0, 3).ToUpper(), r.Next(10), r.Next(10), r.Next(10), r.Next(10));
         }
 
 

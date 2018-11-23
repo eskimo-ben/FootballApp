@@ -66,7 +66,6 @@ namespace FootballApp
                 return Update() ? true : false;
             else
             {
-                
                 return Insert() ? true : false;
             }
 
@@ -74,7 +73,6 @@ namespace FootballApp
 
             bool Insert()
             {
-
                 bool success;
                 if(teamCode == null) teamCode = GenerateTeamCode();
                 try
@@ -83,11 +81,10 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand insertTeam = new SqlCommand("INSERT INTO t_Teams VALUES (@teamcode, @name, @venue)", conn);
+                        SqlCommand insertTeam = new SqlCommand("INSERT INTO t_Teams (teamcode, name) VALUES (@teamcode, @name)", conn);
 
                         insertTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
                         insertTeam.Parameters.Add(new SqlParameter("name", name));
-                        insertTeam.Parameters.Add(new SqlParameter("venue", venue));
 
                         success = insertTeam.ExecuteNonQuery() > 0 ? true : false;
                     }
@@ -100,39 +97,101 @@ namespace FootballApp
                 }
                 if (success)
                 {
-                    Data.teams.Add(this);
+                    if (UpdateOptionals())
+                    {
+                        Data.teams.Add(this);
+                    }
+                    
                     return true;
                 }
                 else return false;
             }
 
-            bool Update()
+            bool UpdateOptionals()
             {
-                try
+                if (venue != null)
                 {
-                    using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                    try
                     {
-                        conn.Open();
+                        using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                        {
+                            conn.Open();
 
-                        SqlCommand updateTeam = new SqlCommand("UPDATE t_Teams SET name = @name, venue = @venue WHERE teamcode = @teamcode", conn);
+                            SqlCommand updateOptionals = new SqlCommand("UPDATE t_Teams SET venue = @venue WHERE teamcode = @teamcode", conn);
 
-                        updateTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
-                        updateTeam.Parameters.Add(new SqlParameter("name", name));
-                        updateTeam.Parameters.Add(new SqlParameter("venue", venue));
-                        return updateTeam.ExecuteNonQuery() > 0 ? true : false;
+                            updateOptionals.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                            updateOptionals.Parameters.Add(new SqlParameter("venue", venue));
+
+                            return updateOptionals.ExecuteNonQuery() > 0 ? true : false;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("An exception was thrown whilst team ({0}) optionals were being updated on the database!", teamCode);
+                        Console.WriteLine(e);
+                        return false;
                     }
                 }
-                catch (SqlException e)
-                {
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
+                else return true;
             }
 
+            bool Update()
+            {
+                if (UpdateOptionals())
+                {
+                    try
+                    {
+                        using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                        {
+                            conn.Open();
 
+                            SqlCommand updateTeam = new SqlCommand("UPDATE t_Teams SET name = @name WHERE teamcode = @teamcode", conn);
+
+                            updateTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                            updateTeam.Parameters.Add(new SqlParameter("name", name));
+
+                            return updateTeam.ExecuteNonQuery() > 0 ? true : false;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("An exception was thrown whilst team ({0}) was being updated on the database!", teamCode);
+                        Console.WriteLine(e);
+                        return false;
+                    }
+                }
+                else return false;
+            }
+        }
+
+        public bool Delete()
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                {
+                    conn.Open();
+
+                    SqlCommand releasePlayers = new SqlCommand("UPDATE t_Players SET teamCode = NULL WHERE teamcode = @teamcode", conn);
+                    releasePlayers.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                    releasePlayers.ExecuteNonQuery();
+
+                    SqlCommand deleteTeam = new SqlCommand("DELETE FROM t_Teams WHERE teamcode = @teamcode", conn);
+                    deleteTeam.Parameters.Add(new SqlParameter("teamcode", teamCode));
+                    deleteTeam.ExecuteNonQuery();
+                    Data.teams.Remove(this);
+
+                    Player.getByTeamCode(teamCode).ForEach(player => player.teamCode = null);
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An exception was thrown whilst team ({0}) was being deleted from the database!", teamCode);
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
         public bool Load()
@@ -170,12 +229,10 @@ namespace FootballApp
                         }
                     }
                 }
-                catch (SqlException e)
-                {
-                    return false;
-                }
                 catch (Exception e)
                 {
+                    Console.WriteLine("An exception was thrown whilst team ({0}) was being loaded from the database!", teamCode);
+                    Console.WriteLine(e);
                     return false;
                 }
                 return true;
@@ -185,7 +242,7 @@ namespace FootballApp
         private string GenerateTeamCode()
         {
             Random r = new Random();
-            return r.Next(10) + r.Next(10) + r.Next(10) + name.Substring(0, 3);
+            return String.Format("{0}{1}{2}{3}", r.Next(10), r.Next(10), r.Next(10), name.Substring(0, 3).ToUpper());
         }
 
         public static Team getByCode(string pTeamCode)

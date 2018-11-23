@@ -32,9 +32,10 @@ namespace FootballApp
             fieldTeam.SelectedValuePath = "teamCode";
             fieldTeam.DisplayMemberPath = "name";
             fieldTeam.ItemsSource = teamItems;
+            fieldTeam.SelectedValue = null;
         }
 
-        public PlayerForm(Player pPlayer):this()
+        public PlayerForm(Player pPlayer) : this()
         {
             myPlayer = pPlayer;
             fieldFname.Text = pPlayer.fname;
@@ -43,8 +44,14 @@ namespace FootballApp
             fieldStatus.IsChecked = pPlayer.status;
         }
 
+        public PlayerForm(string pTeamCode) : this()
+        {
+            fieldTeam.SelectedValue = pTeamCode;
+        }
+
         private void b_Save_Click(object sender, RoutedEventArgs e)
         {
+            Console.WriteLine("----------Save button clicked");
             if (Validate())
             {
                 myPlayer.fname = fieldFname.Text;
@@ -55,6 +62,7 @@ namespace FootballApp
                 }
                 myPlayer.status = Convert.ToBoolean(fieldStatus.IsChecked);
                 myPlayer.Save();
+                this.Close();
                 MessageBox.Show("Changes were made successfully!", "Success!");
             }
 

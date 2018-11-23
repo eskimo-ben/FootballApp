@@ -36,7 +36,7 @@
 
         <Button Grid.Row="2" x:Name = "b_Remove" Content = "Remove"
          HorizontalAlignment = "Left"
-         VerticalAlignment = "Center" Width = "75" Margin="5,0,0,0"/>
+         VerticalAlignment = "Center" Width = "75" Margin="5,0,0,0" Click="b_Remove_Click"/>
 
         
     </Grid>

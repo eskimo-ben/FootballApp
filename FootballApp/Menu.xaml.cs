@@ -28,17 +28,17 @@ namespace FootballApp
 
         private void b_Games_Click(object sender, RoutedEventArgs e)
         {
-            new Selector(new Game()).Show();
+            new Selector(new Game()).ShowDialog();
         }
 
         private void b_Teams_Click(object sender, RoutedEventArgs e)
         {
-            new Selector(new Team()).Show();
+            new Selector(new Team()).ShowDialog();
         }
 
         private void b_Players_Click(object sender, RoutedEventArgs e)
         {
-            new Selector(new Player()).Show();
+            new Selector(new Player()).ShowDialog();
         }
     }
 }

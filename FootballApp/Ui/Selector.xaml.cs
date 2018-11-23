@@ -81,6 +81,14 @@ namespace FootballApp
         
         void ComboList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            RefreshMain();
+            
+        }
+
+        void RefreshMain()
+        {
+            MainList.ItemsSource = null;
+
             if (isPlayer)
             {
                 switch (ComboList.SelectedValue)
@@ -99,26 +107,32 @@ namespace FootballApp
 
             if (isTeam)
             {
-
+                MainList.ItemsSource = Data.teams;
             }
 
             if (isGame)
             {
-
+                MainList.ItemsSource = Data.games;
             }
-            
         }
 
         private void b_Add_Click(object sender, RoutedEventArgs e)
         {
             if (isPlayer)
             {
-                new PlayerForm().Show();
+                if(ComboList.SelectedValue.ToString() != "FREE" && ComboList.SelectedValue.ToString() != "ALL")
+                {
+                    new PlayerForm(ComboList.SelectedValue.ToString()).ShowDialog();
+                }
+                else new PlayerForm().ShowDialog();
+
+                RefreshMain();
             }
 
             if (isTeam)
             {
-                new TeamForm().Show();
+                new TeamForm().ShowDialog();
+                RefreshMain();
             }
         }
 
@@ -127,12 +141,16 @@ namespace FootballApp
             if (isPlayer)
             {
                 if (Player.checkByPlayerCode(MainList.SelectedValue.ToString()))
-                    new PlayerForm(Player.getByPlayerCode(MainList.SelectedValue.ToString())).Show();
+                    new PlayerForm(Player.getByPlayerCode(MainList.SelectedValue.ToString())).ShowDialog();
+
+                RefreshMain();
             }
             if (isTeam)
             {
                 if (Team.checkByCode(MainList.SelectedValue.ToString()))
-                    new TeamForm(Team.getByCode(MainList.SelectedValue.ToString())).Show();
+                    new TeamForm(Team.getByCode(MainList.SelectedValue.ToString())).ShowDialog();
+
+                RefreshMain();
             }
 
             if (isGame)
@@ -140,6 +158,31 @@ namespace FootballApp
 
             }
             
+        }
+
+        private void b_Remove_Click(object sender, RoutedEventArgs e)
+        {
+            if (isPlayer)
+            {
+                if (Player.checkByPlayerCode(MainList.SelectedValue.ToString()))
+                    Player.getByPlayerCode(MainList.SelectedValue.ToString()).Delete();
+
+                RefreshMain();
+                MessageBox.Show("Player was deleted successfully!");
+            }
+            if (isTeam)
+            {
+                if (Team.checkByCode(MainList.SelectedValue.ToString()))
+                    Team.getByCode(MainList.SelectedValue.ToString()).Delete();
+
+                RefreshMain();
+                MessageBox.Show("Team was deleted successfully! Team's players are now 'Free Agents'");
+            }
+
+            if (isGame)
+            {
+
+            }
         }
     }
 }
