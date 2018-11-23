@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 
 namespace FootballApp
@@ -11,7 +9,6 @@ namespace FootballApp
     {
         public string teamCode { get; set; }
         public string name { get; set; }
-        //public string name;
         public string venue;
 
         public Team(string pTeamCode)
@@ -255,7 +252,6 @@ namespace FootballApp
             return Data.teams.Count(team => team.teamCode == pTeamCode) > 0 ? true : false;
         }
 
-
         public static List<Team> sortByName()
         {
             return Data.teams.OrderBy(team => team.name).ToList();
@@ -267,3 +263,4 @@ namespace FootballApp
         }
     }
 }
+

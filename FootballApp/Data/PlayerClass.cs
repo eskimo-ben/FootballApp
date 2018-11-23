@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 
 namespace FootballApp
@@ -259,8 +257,6 @@ namespace FootballApp
             return String.Format("{0}{1}{2}{3}", fname.Substring(0, 3).ToUpper(), r.Next(10), r.Next(10), r.Next(10), r.Next(10));
         }
 
-
-        #region Collections of players
         public static Player getByPlayerCode(string pPlayerCode)
         {
             return Data.players.Single(player => player.playerCode == pPlayerCode);
@@ -280,6 +276,6 @@ namespace FootballApp
         {
             return Data.players.Where(player => player.teamCode == pTeamCode).ToList();
         }
-        #endregion
     }
 }
+

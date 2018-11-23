@@ -40,5 +40,12 @@ namespace FootballApp
         {
             new Selector(new Player()).ShowDialog();
         }
+
+        private void b_Help_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("To manage players within the league, click 'Players'." + Environment.NewLine +
+                "To manage teams within the league, click 'Teams'" + Environment.NewLine +
+                "To manage games within the league, click 'Games'", "Help");
+        }
     }
 }

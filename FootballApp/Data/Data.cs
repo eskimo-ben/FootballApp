@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data.SqlClient;
 using BenCsv;
 
@@ -10,7 +7,7 @@ namespace FootballApp
 {
     static class Data
     {
-        public static string OnlineConnStr { get; } = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\ben\source\repos\FootballApp\FootballApp\Data\FootballDb.mdf;Integrated Security=True";
+        public static string OnlineConnStr { get; } = String.Format(@"Data Source = (LocalDB)\MSSQLLocalDB; AttachDbFilename= {0}Data\FootballDb.mdf;Integrated Security=True", AppDomain.CurrentDomain.BaseDirectory);
         public static List<Player> players = new List<Player>();
         public static List<Team> teams = new List<Team>();
         public static List<Game> games = new List<Game>();
@@ -122,3 +119,4 @@ namespace FootballApp
         }
     }
 }
+

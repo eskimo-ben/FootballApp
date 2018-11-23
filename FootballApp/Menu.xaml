@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FootballApp"
         mc:Ignorable="d"
-        Title="Menu" Height="260" Width="200">
+        Title="Menu" Height="260" MinHeight="260" Width="220" MinWidth="220">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -18,7 +18,7 @@
         <Label Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">Menu</Label>
         <Button x:Name = "b_Help" Content = "Help"
          HorizontalAlignment = "Center" Grid.Row="1"
-         VerticalAlignment = "Center" Width = "75"/>
+         VerticalAlignment = "Center" Width = "75" Click="b_Help_Click"/>
         <Button x:Name = "b_Games" Content = "Games"
          HorizontalAlignment = "Center" Grid.Row="2"
          VerticalAlignment = "Center" Width = "75" Click="b_Games_Click"/>
