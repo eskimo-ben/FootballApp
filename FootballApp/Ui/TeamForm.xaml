@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FootballApp"
         mc:Ignorable="d"
-        Title="Team Form" Height="170" MinHeight="170" Width="283.95" MinWidth="283.95">
+        Title="Team Form" Height="210" MinHeight="210" Width="283.95" MinWidth="283.95">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="47"></ColumnDefinition>
@@ -13,7 +13,8 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="32" />
             <RowDefinition Height="32"/>
             <RowDefinition Height="40"/>
             <RowDefinition Height="*"/>
@@ -26,20 +27,20 @@
         </ScrollViewer>
         -->
 
-        <Label Grid.Row="0" HorizontalAlignment="Right">Name</Label>
-        <Label Grid.Row="1" HorizontalAlignment="Right">Venue</Label>
-        <Label Grid.Row="2" HorizontalAlignment="Right" VerticalAlignment="Center">Players</Label>
+        <Label Grid.Row="1" HorizontalAlignment="Right">Name</Label>
+        <Label Grid.Row="2" HorizontalAlignment="Right">Venue</Label>
+        <Label Grid.Row="3" HorizontalAlignment="Right" VerticalAlignment="Center">Players</Label>
 
         <Button 
-            Grid.Row="2" Grid.Column ="1" x:Name = "b_EditPlayers" Content = "Edit Player List"
+            Grid.Row="3" Grid.Column ="1" x:Name = "b_EditPlayers" Content = "Edit Player List"
          HorizontalAlignment = "Center"
          VerticalAlignment = "Center" Width = "209" Height="30" Click="b_EditPlayers_Click" 
                 />
 
         
-        <TextBox Grid.Row="0" Grid.Column ="1" x:Name="nameField" Tag="Name of team" Style="{StaticResource TextBoxStyle}"></TextBox>
-        <TextBox Grid.Row="1" Grid.Column ="1" x:Name="venueField" Tag="Team Venue" Style="{StaticResource TextBoxStyle}"></TextBox>
-        <Button Grid.Row="4" Grid.Column ="2" x:Name = "b_Save" Content = "Save"
+        <TextBox Grid.Row="1" Grid.Column ="1" x:Name="nameField" Tag="Name of team" Style="{StaticResource TextBoxStyle}"></TextBox>
+        <TextBox Grid.Row="2" Grid.Column ="1" x:Name="venueField" Tag="Team Venue" Style="{StaticResource TextBoxStyle}"></TextBox>
+        <Button Grid.Row="5" Grid.Column ="2" x:Name = "b_Save" Content = "Save"
          HorizontalAlignment = "Right"
          VerticalAlignment = "Center" Width = "75" Margin="0,0,5,0" Click="b_Save_Click"/>
 

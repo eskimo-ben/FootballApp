@@ -34,6 +34,8 @@ namespace FootballApp
 
         public bool Save()
         {
+            if (gameCode == null) gameCode = GenerateGameCode();
+
             if (ExistsOnDb())
             {
                 return Update() ? true : false;
@@ -51,87 +53,164 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand findFixture = new SqlCommand("SELECT * FROM t_Fixtures WHERE fixturecode = @fixturecode", conn);
+                        SqlCommand countGames = new SqlCommand("SELECT COUNT (*) FROM t_Games WHERE gamecode = @gamecode", conn);
 
-                        findFixture.Parameters.Add(new SqlParameter("fixturecode", gameCode));
+                        countGames.Parameters.Add(new SqlParameter("gamecode", gameCode));
 
-                        return findFixture.ExecuteNonQuery() > 0 ? true : false;
+                        int noOfRecords = 0;
+
+                        using (SqlDataReader reader = countGames.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                noOfRecords = Convert.ToInt16(reader[0]);
+                            }
+                        }
+
+                        return noOfRecords > 0 ? true : false;
                     }
-                }
-                catch (SqlException e)
-                {
-                    return false;
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("An exception was thrown whilst checking if game ({0}) exists on the database!", gameCode);
+                    Console.WriteLine(e);
                     return false;
                 }
             }
 
             bool Insert()
             {
+                bool success;
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
                     {
                         conn.Open();
 
-                        SqlCommand insertGame = new SqlCommand("INSERT INTO t_Games VALUES (@gamecode, @hometeamcode, @awayteamcode, @homeplayercodes, @awayplayercodes, @date, @homescore, @awayscore)", conn);
+                        SqlCommand insertGame = new SqlCommand("INSERT INTO t_Games (gamecode, hometeamcode, awayteamcode, date) VALUES (@gamecode, @hometeamcode, @awayteamcode, @date)", conn);
 
                         insertGame.Parameters.Add(new SqlParameter("gamecode", gameCode));
                         insertGame.Parameters.Add(new SqlParameter("hometeamcode", homeTeamCode));
                         insertGame.Parameters.Add(new SqlParameter("awayteamcode", awayTeamCode));
-                        insertGame.Parameters.Add(new SqlParameter("homeplayercodes", Csv.GenCsvString(homePlayerCodes)));
-                        insertGame.Parameters.Add(new SqlParameter("awayplayercodes", Csv.GenCsvString(awayPlayerCodes)));
                         insertGame.Parameters.Add(new SqlParameter("date", date));
-                        insertGame.Parameters.Add(new SqlParameter("homescore", homeScore));
-                        insertGame.Parameters.Add(new SqlParameter("awayscore", awayScore));
 
-                        return insertGame.ExecuteNonQuery() > 0 ? true : false;
+                        success = insertGame.ExecuteNonQuery() > 0 ? true : false;
                     }
-                }
-                catch (SqlException e)
-                {
-                    return false;
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("An exception was thrown whilst game ({0}) was being inserted into the database!", gameCode);
+                    Console.WriteLine(e);
+                    return false;
+                }
+
+                if (success)
+                {
+                    if (UpdateOptionals())
+                    {
+                        Data.games.Add(this);
+                        return true;
+                    }
+                    else return false;
+                }
+                else return false;
+            }
+
+            bool UpdateOptionals()
+            {
+                bool success = true;
+                try
+                {
+                    using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                    {
+                        conn.Open();
+
+                        
+
+                        if(homePlayerCodes != null)
+                        {
+                            Console.WriteLine("----------Updating homePlayerCodes");
+                            SqlCommand updateOptionalHomePlayerCodes = new SqlCommand("UPDATE t_Games SET homeplayercodes = @homeplayercodes WHERE gamecode = @gamecode", conn);
+
+                            updateOptionalHomePlayerCodes.Parameters.Add(new SqlParameter("gamecode", gameCode));
+                            updateOptionalHomePlayerCodes.Parameters.Add(new SqlParameter("homeplayercodes", Csv.GenCsvString(homePlayerCodes)));
+
+                            if (updateOptionalHomePlayerCodes.ExecuteNonQuery() <= 0) success = false;
+                        }
+                        
+                        if(awayPlayerCodes != null)
+                        {
+                            Console.WriteLine("----------Updating awayPlayerCodes");
+                            SqlCommand updateOptionalAwayPlayerCodes = new SqlCommand("UPDATE t_Games SET awayplayercodes = @awayplayercodes WHERE gamecode = @gamecode", conn);
+
+                            updateOptionalAwayPlayerCodes.Parameters.Add(new SqlParameter("gamecode", gameCode));
+                            updateOptionalAwayPlayerCodes.Parameters.Add(new SqlParameter("awayplayercodes", Csv.GenCsvString(awayPlayerCodes)));
+
+                            if (updateOptionalAwayPlayerCodes.ExecuteNonQuery() <= 0) success = false;
+                        }
+
+                        if (homeScore != 0)
+                        {
+                            Console.WriteLine("----------Updating homeScore");
+                            SqlCommand updateOptionalHomeScore = new SqlCommand("UPDATE t_Games SET homescore = @homescore WHERE gamecode = @gamecode", conn);
+
+                            updateOptionalHomeScore.Parameters.Add(new SqlParameter("gamecode", gameCode));
+                            updateOptionalHomeScore.Parameters.Add(new SqlParameter("homescore", homeScore));
+
+                            if (updateOptionalHomeScore.ExecuteNonQuery() <= 0) success = false;
+                        }
+
+                        if (awayScore != 0)
+                        {
+                            Console.WriteLine("----------Updating awayScore");
+                            SqlCommand updateOptionalAwayScore = new SqlCommand("UPDATE t_Games SET awayscore = @awayscore WHERE gamecode = @gamecode", conn);
+
+                            updateOptionalAwayScore.Parameters.Add(new SqlParameter("gamecode", gameCode));
+                            updateOptionalAwayScore.Parameters.Add(new SqlParameter("awayscore", awayScore));
+
+                            if (updateOptionalAwayScore.ExecuteNonQuery() <= 0) success = false;
+                        }
+                        return success;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("An exception was thrown whilst game ({0}) optionals were being updated on the database!", gameCode);
+                    Console.WriteLine(e);
                     return false;
                 }
             }
 
             bool Update()
             {
-                try
+                if (UpdateOptionals())
                 {
-                    using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                    try
                     {
-                        conn.Open();
+                        using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
+                        {
+                            conn.Open();
 
-                        SqlCommand updateGame = new SqlCommand("UPDATE t_Games SET gamecode = @gamecode, hometeamcode = @hometeamcode, " +
-                            "awayteamcode = @awayteamcode, homeplayercodes = @homeplayercodes, awayplayercodes = @awayplayercodes, date = @date, " +
-                            "homescore=@homescore, awayscore=@awayscore WHERE fixturecode = @fixturecode", conn);
+                            SqlCommand updateGame = new SqlCommand("UPDATE t_Games SET hometeamcode = @hometeamcode, " +
+                                "awayteamcode = @awayteamcode, date = @date " +
+                                "WHERE gamecode = @gamecode", conn);
 
-                        updateGame.Parameters.Add(new SqlParameter("gamecode", gameCode));
-                        updateGame.Parameters.Add(new SqlParameter("hometeamcode", homeTeamCode));
-                        updateGame.Parameters.Add(new SqlParameter("awayteamcode", awayTeamCode));
-                        updateGame.Parameters.Add(new SqlParameter("homeplayercodes", Csv.GenCsvString(homePlayerCodes)));
-                        updateGame.Parameters.Add(new SqlParameter("awayplayercodes", Csv.GenCsvString(awayPlayerCodes)));
-                        updateGame.Parameters.Add(new SqlParameter("date", date));
-                        updateGame.Parameters.Add(new SqlParameter("homescore", homeScore));
-                        updateGame.Parameters.Add(new SqlParameter("awayscore", awayScore));
+                            updateGame.Parameters.Add(new SqlParameter("gamecode", gameCode));
+                            updateGame.Parameters.Add(new SqlParameter("hometeamcode", homeTeamCode));
+                            updateGame.Parameters.Add(new SqlParameter("awayteamcode", awayTeamCode));
+                            updateGame.Parameters.Add(new SqlParameter("date", date));
 
-                        return updateGame.ExecuteNonQuery() > 0 ? true : false;
+                            return updateGame.ExecuteNonQuery() > 0 ? true : false;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("An exception was thrown whilst game ({0}) was being updated on the database!", gameCode);
+                        Console.WriteLine(e);
+                        return false;
                     }
                 }
-                catch (SqlException e)
-                {
-                    return false;
-                }
-                catch (Exception e)
-                {
-                    return false;
-                }
+                else return false;
             }
         }
 
@@ -187,9 +266,19 @@ namespace FootballApp
             }
         }
 
-        public string GenerateGameCode()
+        private string GenerateGameCode()
         {
             return String.Format("{0}v{1}{2}", homeTeamCode, awayTeamCode, date.ToString("ddmmyy"));
+        }
+
+        public static Game getByGameCode(string pGameCode)
+        {
+            return Data.games.Single(game => game.gameCode == pGameCode);
+        }
+
+        public static bool checkByGameCode(string pGameCode)
+        {
+            return Data.games.Count(game => game.gameCode == pGameCode) > 0 ? true : false;
         }
     }
 }

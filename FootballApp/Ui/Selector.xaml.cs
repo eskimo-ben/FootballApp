@@ -33,12 +33,13 @@ namespace FootballApp
             isGame = true;
             Title = "Game Selector";
 
-            ComboList.DisplayMemberPath = "name";
-            ComboList.SelectedValuePath = "teamCode";
+            /*ComboList.DisplayMemberPath = "name";
+            ComboList.SelectedValuePath = "teamCode";*/
 
+            MainList.ItemsSource = Data.games;
             MainList.DisplayMemberPath = "gameName";
             MainList.SelectedValuePath = "gameCode";
-            MainList.ItemsSource = Data.games;
+            
 
             
         }
@@ -64,11 +65,15 @@ namespace FootballApp
 
         public Selector(Team pTeam) : this()
         {
+
+            ComboList.ItemsSource = new List<string>() { "Sort by: Name", "Sort By: Venue name" };
+            ComboList.SelectedIndex = 0;
             isTeam = true;
             Title = "Team Selector";
-            
 
-            MainList.ItemsSource = Data.teams;
+
+            //MainList.ItemsSource = Data.teams;
+            MainList.ItemsSource = Team.sortByName();
             MainList.DisplayMemberPath = "name";
             MainList.SelectedValuePath = "teamCode";
         }
@@ -107,7 +112,18 @@ namespace FootballApp
 
             if (isTeam)
             {
-                MainList.ItemsSource = Data.teams;
+                switch (ComboList.SelectedValue.ToString())
+                {
+                    case "Sort by: Name":
+                        MainList.ItemsSource = Team.sortByName();
+                        break;
+                    case "Sort By: Venue name":
+                        MainList.ItemsSource = Team.sortByVenue();
+                        break;
+                    default:
+                        MainList.ItemsSource = Team.sortByName();
+                        break;
+                }
             }
 
             if (isGame)
@@ -134,6 +150,12 @@ namespace FootballApp
                 new TeamForm().ShowDialog();
                 RefreshMain();
             }
+
+            if (isGame)
+            {
+                new GameForm().ShowDialog();
+                RefreshMain();
+            }
         }
 
         private void b_Edit_Click(object sender, RoutedEventArgs e)
@@ -147,15 +169,18 @@ namespace FootballApp
             }
             if (isTeam)
             {
-                if (Team.checkByCode(MainList.SelectedValue.ToString()))
-                    new TeamForm(Team.getByCode(MainList.SelectedValue.ToString())).ShowDialog();
+                if (Team.checkByTeamCode(MainList.SelectedValue.ToString()))
+                    new TeamForm(Team.getByTeamCode(MainList.SelectedValue.ToString())).ShowDialog();
 
                 RefreshMain();
             }
 
             if (isGame)
             {
+                if (Game.checkByGameCode(MainList.SelectedValue.ToString()))
+                    new GameForm(Game.getByGameCode(MainList.SelectedValue.ToString())).ShowDialog();
 
+                RefreshMain();
             }
             
         }
@@ -172,8 +197,8 @@ namespace FootballApp
             }
             if (isTeam)
             {
-                if (Team.checkByCode(MainList.SelectedValue.ToString()))
-                    Team.getByCode(MainList.SelectedValue.ToString()).Delete();
+                if (Team.checkByTeamCode(MainList.SelectedValue.ToString()))
+                    Team.getByTeamCode(MainList.SelectedValue.ToString()).Delete();
 
                 RefreshMain();
                 MessageBox.Show("Team was deleted successfully! Team's players are now 'Free Agents'");

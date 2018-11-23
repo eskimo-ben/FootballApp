@@ -40,7 +40,6 @@ namespace FootballApp
             else
             {
                 Console.WriteLine("----------Player does not exist on the database. Using INSERT statement...");
-                Data.players.Add(this);
                 return Insert() && UpdateOptionals();
             }
 
@@ -52,15 +51,13 @@ namespace FootballApp
                     {
                         conn.Open();
 
-                        SqlCommand findPlayer = new SqlCommand("SELECT COUNT (*) FROM t_Players WHERE playercode = @playercode", conn);
+                        SqlCommand countPlayers = new SqlCommand("SELECT COUNT (*) FROM t_Players WHERE playercode = @playercode", conn);
 
-                        findPlayer.Parameters.Add(new SqlParameter("playercode", playerCode));
-
-                        //int noOfRecords = findPlayer.ExecuteNonQuery();
+                        countPlayers.Parameters.Add(new SqlParameter("playercode", playerCode));
 
                         int noOfRecords = 0;
 
-                        using (SqlDataReader reader = findPlayer.ExecuteReader())
+                        using (SqlDataReader reader = countPlayers.ExecuteReader())
                         {
                             if (reader.Read())
                             {
@@ -73,12 +70,15 @@ namespace FootballApp
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine("An exception was thrown whilst checking if player ({0}) exists on the database!", playerCode);
+                    Console.WriteLine(e);
                     return false;
                 }
             }
 
             bool Insert()
             {
+                bool success = true;
                 try
                 {
                     using (SqlConnection conn = new SqlConnection(Data.OnlineConnStr))
@@ -92,7 +92,7 @@ namespace FootballApp
                         insertPlayer.Parameters.Add(new SqlParameter("sname", sname));
                         insertPlayer.Parameters.Add(new SqlParameter("status", status));
 
-                        return insertPlayer.ExecuteNonQuery() > 0 ? true : false;
+                        success = insertPlayer.ExecuteNonQuery() > 0 ? true : false;
                     }
                 }
                 catch (Exception e)
@@ -101,6 +101,17 @@ namespace FootballApp
                     Console.WriteLine(e);
                     return false;
                 }
+                
+                if (success)
+                {
+                    if (UpdateOptionals())
+                    {
+                        Data.players.Add(this);
+                        return true;
+                    }
+                    else return false;
+                }
+                else return false;
             }
 
             bool Update()

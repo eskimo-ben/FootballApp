@@ -79,6 +79,9 @@
     <Compile Include="Data\Data.cs" />
     <Compile Include="Data\GameClass.cs" />
     <Compile Include="Data\TeamClass.cs" />
+    <Compile Include="Ui\GameForm.xaml.cs">
+      <DependentUpon>GameForm.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Ui\PlayerForm.xaml.cs">
       <DependentUpon>PlayerForm.xaml</DependentUpon>
     </Compile>
@@ -88,6 +91,10 @@
     <Compile Include="Ui\TeamForm.xaml.cs">
       <DependentUpon>TeamForm.xaml</DependentUpon>
     </Compile>
+    <Page Include="Ui\GameForm.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Ui\PlayerForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

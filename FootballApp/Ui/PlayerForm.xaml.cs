@@ -33,6 +33,8 @@ namespace FootballApp
             fieldTeam.DisplayMemberPath = "name";
             fieldTeam.ItemsSource = teamItems;
             fieldTeam.SelectedValue = null;
+
+            fieldStatus.IsChecked = true;
         }
 
         public PlayerForm(Player pPlayer) : this()

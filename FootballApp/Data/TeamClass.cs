@@ -100,9 +100,9 @@ namespace FootballApp
                     if (UpdateOptionals())
                     {
                         Data.teams.Add(this);
+                        return true;
                     }
-                    
-                    return true;
+                    else return false;
                 }
                 else return false;
             }
@@ -245,14 +245,25 @@ namespace FootballApp
             return String.Format("{0}{1}{2}{3}", r.Next(10), r.Next(10), r.Next(10), name.Substring(0, 3).ToUpper());
         }
 
-        public static Team getByCode(string pTeamCode)
+        public static Team getByTeamCode(string pTeamCode)
         {
             return Data.teams.Single(team => team.teamCode == pTeamCode);
         }
 
-        public static bool checkByCode(string pTeamCode)
+        public static bool checkByTeamCode(string pTeamCode)
         {
             return Data.teams.Count(team => team.teamCode == pTeamCode) > 0 ? true : false;
+        }
+
+
+        public static List<Team> sortByName()
+        {
+            return Data.teams.OrderBy(team => team.name).ToList();
+        }
+
+        public static List<Team> sortByVenue()
+        {
+            return Data.teams.OrderBy(team => team.venue).ToList();
         }
     }
 }
